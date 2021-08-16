@@ -98,8 +98,17 @@ distance_price = AirTrain %>%
 summary(lm(distance_price$meanPrice ~ distance_price$EucDist)) # actually the p value is significant.
 # Tribeca has the highest. 5.681137 5.030463
 
-  
-  
-  # df.h %>% group_by(hour) %>%
-  # do(fitHour = tidy(lm(price ~ wind + temp, data = .))) %>% 
-  # unnest(fitHour)
+library(broom)
+
+AirTrain %>%
+  select(neighbourhood, latitude, longitude) %>%
+  mutate(price = target$price,
+         latitude = scales::rescale(latitude, to = c(1, 10)),
+         longitude = scales::rescale(longitude, to = c(1, 10))) %>% 
+  mutate(EucDist = ((5.681137 - latitude)^2 + (5.030463 -  longitude)^2)) %>%
+  group_by(neighbourhood) %>%
+  do(fitneighbourhood = tidy(lm(price ~ EucDist, data = .))) %>%
+  unnest(fitneighbourhood) %>%
+  filter(term != '(Intercept)',
+         p.value <= 0.05) %>% 
+  as.data.frame()
