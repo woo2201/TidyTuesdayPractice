@@ -1,0 +1,449 @@
+---
+title: "mudac_2020"
+author: "Jane Jang"
+date: "3/28/2020"
+output: html_document
+---
+
+```{r}
+rm(list=ls())
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+dockets <- read.csv("C:/Users/16089/Desktop/program_file/MUDAC/train_dockets.csv")
+
+```
+
+#circuit
+```{r}
+dockets %>%
+  group_by(circuit)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+
+```{r}
+dockets %>%
+  group_by(district)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+#district 52
+#district 64
+```
+#office
+
+```{r}
+dockets %>%
+  group_by(office)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#nose_code
+```{r}
+dockets %>%
+  group_by(nos_code)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#nos_text
+```{r}
+dockets %>%
+  group_by(nos_text)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+# nos_code 445 has a high probability that the trial is settled.
+
+#civil rights: American with Disabilities- Emplyment is more likely to be settled.
+```
+
+#statue
+```{r}
+dockets %>% 
+  group_by(statute)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+#protected_class
+```{r}
+dockets %>% 
+  group_by(protected_class)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#requsted_damage_amt
+```{r}
+dockets %>%
+  group_by(requested_damages_amt)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#jury_demand
+```{r}
+dockets %>%
+  group_by(jury_demand)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+#jurisdiction
+```{r}
+dockets %>%
+  group_by(jurisdiction)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+#us.government is plaintiff or defendants, less likely to be settled 
+```
+#diversity_residence
+```{r}
+dockets %>%
+  group_by(diversity_residence)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+ #citizenship of American = platiff, more likely to be settled.
+```
+
+#participants
+```{r}
+dockets %>%
+  group_by(participants)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+#the more participants, the less settlment will be implemented.
+```
+
+#plaintiff
+```{r}
+dockets %>%
+  group_by(plaintiffs)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+#the more participants, the less settlment will be implemented.
+#plaintiff is less than 30 -> effetive
+```
+
+#defendants
+```{r}
+dockets %>%
+  group_by(defendants)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+#the number of defendants < 40
+```
+
+#attorneys_listed
+```{r}
+dockets %>%
+  group_by(attorneys_listed)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+#the number of attorneys < 30
+```
+#judeges_assinged
+```{r}
+dockets %>% 
+  group_by(judges_assigned)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+#pro_se
+```{r}
+dockets %>% 
+  group_by(pro_se)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+#yes lawer, more likely to be setteld
+```
+#informa_pauperis
+```{r}
+dockets %>% 
+  group_by(informa_pauperis)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#class_action
+```{r}
+dockets %>% 
+  group_by(class_action)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#arbitration_at_filing
+```{r}
+dockets %>% 
+  group_by(arbitration_at_filing)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+```
+
+#origin_at_filing
+```{r}
+dockets %>% 
+  group_by(origin_at_filing)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#filers_county
+```{r}
+dockets %>% 
+  group_by(filers_county)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+#issue_joined
+```{r}
+dockets %>% 
+  group_by(issue_joined)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+#pretrial_conf
+```{r}
+dockets %>% 
+  group_by(pretrial_conf)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+#total entry count
+```{r}
+#dockets %>% 
+ # group_by(total_entry_count)%>%
+  ### ggplot(aes(x=total_entry_count))+
+  #geom_histogram()
+ 
+```
+#before_ij_entry_count
+```{r}
+dockets %>% 
+  group_by(before_ij_entry_count)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+#after_ij_entry_count
+```{r}
+dockets %>% 
+  group_by(after_ij_entry_count)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#year_filed
+```{r}
+dockets %>%
+  group_by(year_filed)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+# days_opened
+```{r}
+dockets %>% 
+  group_by(days_opened)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+```
+
+#make pro_se_categorical
+```{r}
+dockets$pro_se <-as.factor(dockets$pro_se)
+```
+
+#Bin requested damages
+```{r}
+a<-dockets %>%
+  group_by(requested_damages_amt)%>%
+  summarize(mean_summary_judgement = mean(summary_judgment), mean_settled = mean(settled))
+
+library(ggplot2)
+#ggplot(data=a, aes(x=requested_damages_amt))
+#+geom_histogram()
+
+```
+
+
+```{r}
+dockets$circuit <- as.factor(dockets$circuit)
+dockets$district <- as.factor(dockets$district)
+dockets$office <-as.factor(dockets$office)
+dockets$nos_code <-as.factor(dockets$nos_code)
+dockets$jurisdiction<-as.factor(dockets$jurisdiction)
+dockets$diversity_residence <-as.factor(dockets$diversity_residence)
+dockets$pro_se<-as.factor(dockets$pro_se)
+dockets$origin_at_filing<-as.factor(dockets$origin_at_filing)
+dockets$filers_county<-as.factor(dockets$filers_county)
+dockets$year_filed <-as.factor(dockets$year_filed)
+dockets$settledCTG<-as.factor(dockets$settled)
+dockets$summary_judgmentCTG<-as.factor(dockets$settled)
+
+
+
+
+
+```
+
+```{r}
+dockets<-dockets[,-33] #remove outcome
+#dockets<-dockets[,-33] #remove_summary_judgement
+#dockets<-dockets[,-1] 
+#dockets<-dockets[,-4]
+dockets<-dockets[,-5]
+dockets<-dockets[,-24]
+
+```
+
+
+
+```{r}
+
+trainmotions <- read.csv("C:/Users/16089/Desktop/program_file/MUDAC/train_other_motions.csv")
+traintermmotions <- read.csv("C:/Users/16089/Desktop/program_file/MUDAC/train_terminating_motions.csv")
+
+a<-ddply(traintermmotions,.(mudac_id),nrow)
+names(a)[2] <- "NumTermMotions"
+
+
+traintermmotions <- merge(traintermmotions,a,by="mudac_id")
+
+EUR <- traintermmotions[which(traintermmotions$filing_party=="Plaintiff"),]
+a<-ddply(EUR,.(mudac_id),nrow)
+names(a)[2] <- "ClaimnatsNumTermMotions"
+traintermmotions <- merge(traintermmotions,a,by="mudac_id")
+
+
+
+total <- merge(dockets,traintermmotions,all.x = TRUE,by="mudac_id")
+
+
+a<-ddply(trainmotions,.(mudac_id),nrow)
+names(a)[2] <- "NumNonTermMotions"
+trainmotions <- merge(trainmotions,a,by="mudac_id")
+
+EUR <- trainmotions[which(trainmotions$decison=="Granted"|trainmotions$decison=="Granted in Part"),]
+a<-ddply(EUR,.(mudac_id),nrow)
+names(a)[2] <- "NumAcceptedNonTermMotions"
+trainmotions <- merge(trainmotions,a,by="mudac_id")
+total <- merge(total,trainmotions,by="mudac_id")
+
+#create a new variable
+total$lawyerperjudge<-(total$attorneys_listed/total$judges_assigned)
+total$motionperjudge<-(total$total_entry_count/total$judges_assigned)
+total$motionperlawyer<-(total$total_entry_count/total$attorneys_listed)
+total$TERMmotionperjudge<-(total$NumTermMotions/total$judges_assigned)
+total$TERMmotionperlawyer<-(total$NumTermMotions/total$attorneys_listed)
+total$PercTermByPlaintif<-(total$ClaimnatsNumTermMotions/total$NumTermMotions)
+#for (i in 1:nrow(total)){
+ # if(total[i,45]==0|is.na(total[i,45])){
+ #   total[i,45]<-NA
+ # }
+ # else{
+#total$percAccptNonTermMotions<-(total$NumAcceptedNonTermMotions/total$NumNonTermMotions)
+#  }
+#  }
+
+#total$PercMotionsNonTerminals<-NA
+#sum(is.na(total$NumTermMotions))
+#total$totalmotions<-total$NumNonTermMotions + total$NumTermMotions
+#totes<-((total$NonTermMotions)/(total$totalmotions))
+#total$PercMotionsNonTerminals<-(total$NonTermMotions/total$totalmotions)
+
+
+
+
+```
+
+```{r}
+
+aggdata <-aggregate(settled~motion_type+jury_demand,data=total,FUN=mean)
+barplot(aggdata$settled)
+interaction.plot(x.factor = total$motion_type, 
+                 trace.factor = total$jury_demand,
+                 response = as.numeric(sampdck$settledCTG))
+
+```
+
+```{r}
+
+interaction.plot(x.factor = total$filed_before_joined,
+                 trace.factor = total$motion_type,
+                 response = as.numeric(total$settled))
+
+```
+
+```{r}
+
+aggdata <-aggregate(total, by=list(motion_type,filing_party,filed_before_joined),
+  FUN=mean, na.rm=FALSE)
+```
+
+
+
+
+```{r}
+sum( is.na( sampdck ) ) 
+sampID<-sample(43570,3000)
+sampdck<-dockets[sampID,]
+sum(is.na(sampdck$settled)) 
+interaction.plot(x.factor = sampdck$circuit, 
+                 trace.factor = sampdck$issue_joined,
+                 response = as.numeric(sampdck$settledCTG))
+
+
+```
+```{r}
+
+```
+
+```{r}
+sampID<-sample(43570,3000)
+sampdck<-dockets[sampID,]
+
+fullmod <- glm(settledCTG~ ., family = binomial,data=sampdck)
+summary(fullmod)
+coef(fullmod)
+```
+
+```{r}
+library(MASS)
+step.model <- fullmod %>% stepAIC(trace = FALSE)
+coef(step.model)
+summary(step.model)
+AIC(step.model)
+```
+
+
+```{r}
+nothing<-glm(settled~1,family = binomial, data=dockets)
+summary(nothing)
+```
+
+
+```{r}
+redmod<-glm(settled~circuit+district+nos_code+statute+protected_class+requested_damages_amt+jurisdiction+diversity_residence + attorneys_listed + judges_assigned +pro_se + issue_joined +total_entry_count +before_ij_entry_count +after_ij_entry_count+days_opened, family = binomial, data=dockets)
+summary(redmod)
+
+backward <- step(fullmod)
+```
+
+```{r}
+library(glmnet)
+library(caret)
+sample_n(dockets, 3)
+
+set.seed(123)
+training.samples <- dockets$settled %>% 
+  createDataPartition(p = 0.8, list = FALSE)
+train.data  <-dockets[training.samples, ]
+test.data <- dockets[-training.samples, ]
+
+
+x <- model.matrix(settled~., dockets)[,-1]
+y <- ifelse(train.data$settled == "pos", 1, 0)
+set.seed(123) 
+cv.lasso <- cv.glmnet(x, y, alpha = 1, family = "binomial")
+plot(cv.lasso)
+cv.lasso$lambda.min
+cv.lasso$lambda.1se
+coef(cv.lasso, cv.lasso$lambda.min)
+coef(cv.lasso, cv.lasso$lambda.1se)
+
+lasso.model <- glmnet(x, dockets$settled, alpha = 1, family = "binomial",
+                      lambda = cv.lasso$lambda.min)
+summary(lasso.model)
+
+lasso.model2 <- glmnet(x, dockets$settled, alpha = 1, family = "binomial",
+                      lambda = cv.lasso$lambda.1se)
+```
+
+```{r}
+test.dockets <- read.csv("test_dockets.csv")
+x.test <- model.matrix( ~., test.dockets)[,-1]
+probabilities <- lasso.model %>% predict(newx = x.test)
+predicted.classes <- ifelse(probabilities > 0.5, "pos", "neg")
+```
