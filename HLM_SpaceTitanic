@@ -1,0 +1,203 @@
+---
+title: "SpaceTitanic"
+author: "January"
+date: "1/7/2022"
+output: html_document
+---
+
+간단하게 쓸 함수들 만들어두고요.
+```{r}
+as.numericFactor = function(x){return(as.numeric(as.factor(x)))}
+
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+```
+
+파일을 일괄적으로 불러옵니다.
+```{r}
+library(tidyverse)
+library(data.table)
+library(skimr)
+library(corrplot)
+
+path = "/Users/jungwonwoo/Desktop/program_file/1. Kaggle/spaceship-titanic"
+filelist = list.files(path)
+for (i in filelist){
+  if(endsWith(i,'csv')){
+    name <- paste0("df_", str_replace(i, '.csv', ''))
+    assign(name, fread(paste0(path, '/', i)))
+  }
+}
+```
+
+전반적인 공산성 확인부터 해줍니다.
+```{r}
+
+df_train %>%
+  select_if(is.numeric) %>%
+  na.omit() %>%
+  cor() %>%
+  corrplot(type = "lower", order = "hclust", tl.col = "black", tl.srt = 45, diag = FALSE)
+
+
+```
+
+target 변수를 따로 분리해둔 후,
+train 과 test 데이터셋 둘다 일괄적으로 변수명 조정해주고
+다시 split.
+* Data Leakage 가 없도록 *
+* 훈련세트의 정보가 테스트세트에 반영되지는 않도록 함. *
+
+```{r}
+
+target = df_train$Transported
+
+# 전체 데이터에 대한 전처리 진행함.
+# Data Leakage 가 없도록 
+# 훈련세트의 정보가 테스트세트에 반영되지는 않도록 함.
+
+train = df_train %>%
+  transmute(Id = PassengerId,
+            group = map(str_split(PassengerId, pattern = '_'), 1) %>% as.character(),
+            number = map(str_split(PassengerId, pattern = '_'), 2) %>% as.character(),
+            HomePlanet = HomePlanet,
+            CryoSleep = as.factor(CryoSleep),
+            Cabin_deck = map(str_split(Cabin, pattern = '/'), 1) %>% as.character() %>% as.factor(),
+            Cabin_num = map(str_split(Cabin, pattern = '/'), 2) %>% as.character(),
+            Cabin_slide = map(str_split(Cabin, pattern = '/'), 3)  %>% as.character() %>% as.factor(),
+            Destination,
+            Age,
+            VIP = as.factor(VIP),
+            RoomService,
+            FoodCourt,
+            ShoppingMall,
+            Spa,
+            VRDeck,
+            Spent = RoomService + FoodCourt + ShoppingMall + Spa + VRDeck,
+            LastName = map(str_split(Name, pattern = ' '), 2) %>% as.character(),
+            Transported = as.numeric(Transported))
+  
+train = train %>%
+    left_join(train %>%
+              transmute(group, number) %>%
+              group_by(group) %>%
+              summarise(cnt = n_distinct(number)), by = 'group') %>%
+  select(-c(group, number)) %>%
+  mutate(Cabin_deck = ifelse(Cabin_deck == "", getmode(Cabin_deck), Cabin_deck))
+
+
+test = df_test %>%
+  transmute(Id = PassengerId,
+            group = map(str_split(PassengerId, pattern = '_'), 1) %>% as.character(),
+            number = map(str_split(PassengerId, pattern = '_'), 2) %>% as.character(),
+            HomePlanet = HomePlanet,
+            CryoSleep = as.factor(CryoSleep),
+            Cabin_deck = map(str_split(Cabin, pattern = '/'), 1) %>% as.character() %>% as.factor(),
+            Cabin_num = map(str_split(Cabin, pattern = '/'), 2) %>% as.character(),
+            Cabin_slide = map(str_split(Cabin, pattern = '/'), 3)  %>% as.character() %>% as.factor(),
+            Destination,
+            Age,
+            VIP = as.factor(VIP),
+            RoomService,
+            FoodCourt,
+            ShoppingMall,
+            Spa,
+            VRDeck,
+            Spent = RoomService + FoodCourt + ShoppingMall + Spa + VRDeck,
+            LastName = map(str_split(Name, pattern = ' '), 2) %>% as.character())
+  
+test = test %>%
+    left_join(test %>%
+              transmute(group, number) %>%
+              group_by(group) %>%
+              summarise(cnt = n_distinct(number)), by = 'group') %>%
+  select(-c(group, number)) %>%
+  mutate(Cabin_deck = ifelse(Cabin_deck == "", getmode(Cabin_deck), Cabin_deck))
+
+```
+
+```{r}
+
+train = train %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(Transported = as.factor(Transported))
+
+test = test %>%
+  mutate_if(is.character, as.factor)
+  
+
+```
+
+
+```{r}
+
+train
+
+
+```
+
+```{r}
+
+
+
+df_rec = train %>%
+  recipe(target ~ .) %>%
+  step_impute_knn(all_predictors(), neighbors = 3) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_corr(all_numeric_predictors(), threshold = 0.75) %>%
+  step_center(all_numeric_predictors(), -all_outcomes()) %>%
+  step_scale(all_numeric_predictors(), -all_outcomes()) %>%
+  prep()
+
+df_train = df_rec %>% bake(new_data= NULL)
+df_test = df_rec %>% bake(new_data= df_test)
+
+
+```
+
+어떤 모델을 사용할지 생각해보니..
+해당 데이터셋은 Test 와 Train 의 동질성이 상당히 강한 듯 보임.
+고로 Linear regression 같은 모델이 효과를 볼수 있다고 생각하는데...
+
+또한 Species / Island / Sex 등 몇몇 factor 변수들이 random effects 로 작용하는게 아닌가 싶어서 일단 컨트롤해주기로 함. 그러기 위해서는 몇 변수들에 대해서는 컨트롤이 되는 동시에 fixed effects 는 계속 효과적일 수 있도록...
+
+구현이 간단한 Linear Mixed Model 활용해보기로 함
+간단히 말하면, species, island, 등의 효과들을 조절(?)한 상태로 예측하는 것.
+
+이 두 패키지 (lme4, nlme) 에 Linear Mixed model 패키지가 있음.
+
+```{r}
+
+library(lme4) # LM equivalent 
+library(nlme) # GLM equivalent
+
+nullmodel0 = lmer(target ~ 1 + (1|Island/Species), data = df_train)
+nullmodel1 = lmer(target ~ 1 + (1|Sex) + (1|Island/Species), data = df_train)
+nullmodel2 = lmer(target ~ clu_cpl + (1|Sex) + (1|Island/Species), data = df_train)
+
+anova(nullmodel0, nullmodel1, nullmodel2)
+
+```
+
+아노바에서 유의하다는 변수만 골라서 ㅎㅎㅎ..
+대충 돌려봄.
+
+```{r}
+
+model_test = lmer(target ~ cul_len + cul_dep + flp_len + (1|Island/Species), data = df_train)
+summary(model_test)
+
+```
+
+```{r}
+
+prd_target = round(predict(object = model3, newdata = df_test)*25,0)
+
+df_sample_submission %>%
+  mutate(`Body Mass (g)` = as.integer(prd_target)) %>%
+  as.data.frame() %>%
+  write.csv("/Users/jungwonwoo/Desktop/program_file/6.Dacon/Penguin/rslt/submission_5.csv",row.names = FALSE)
+
+```
